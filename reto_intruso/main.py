@@ -8,6 +8,11 @@ def alarma():
     #Creamos el video
     cap = cv2.VideoCapture(0)
     
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480) 
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FOURCC, 0x32595559)
+    cap.set(cv2.CAP_PROP_FPS, 25)
+    
     #Llamada al detector de video
     mov = cv2.createBackgroundSubtractorKNN(history=500, dist2Threshold=400, detectShadows=False)
     
@@ -54,9 +59,9 @@ def alarma():
             cv2.imshow("Umbral", mascara)
             cv2.imshow("Contornos", contornos)
 
-            k = cv2.waitKey(5)
-            if k ==  27:
-                break
+            if cv2.waitKey(20) & 0xFF==ord('p'):
+                print("Finished")
+                return
 
     cap.release()
     cv2.destroyAllWindows()
