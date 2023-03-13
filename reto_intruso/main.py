@@ -5,33 +5,51 @@ from tkinter import *
 
 def alarma():
     
-    cap = cv2.VideoCapture(1)
+    #Creamos el video
+    cap = cv2.VideoCapture(0)
+    
+    #Llamada al detector de video
     mov = cv2.createBackgroundSubtractorKNN(history=500, dist2Threshold=400, detectShadows=False)
+    
+    #history: tamano del historico 
+    #dist2Threshold: umbral de distancia al cuadrado, entre el pixel y la muestra para decidir si un pixel esta cerca de esa muestra
+    #detectShadows: opcion para la deteccion de sombras
 
     cv2.ocl.setUseOpenCL(True)
 
     while True:
         ret,frame = cap.read()
-
+        
+        #Si no se lee el video bien, se termina el programa
         if not ret:
             print("CAMERA PROBLEM")
             break
-
+        
+        #Aplicamos detector
         mascara = mov.apply(frame)
-
+        
+        #Creamos copia para detectar los contornos
         contornos = mascara.copy()
-
+        
+        #Busqueda de contornos
         con, jerarquia = cv2.findContours(contornos, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+        
+        #Iteracion de contornos
         for c in con:
+            
+            #Se elimina ruido (contornos pequenos)
             if cv2.contourArea(c) < 4000:
                 continue
             if cv2.contourArea(c) >= 4000:
+                
+                #Obtenemos limites de contornos
                 (x,y,w,h) = cv2.boundingRect(c)
-
+                
+                #Dibujo del rectangulo
                 cv2.rectangle(frame, (x,y), (x+w, y+h),(0,0,255),2)
                 cv2.putText(frame, '{}'.format("Alarma"),(x,y-5),1,1.3,(0,0,255),1,cv2.LINE_AA)
 
+            #Mostramos la camara, mascara y contornos
             cv2.imshow("Alarma activa", frame)
             cv2.imshow("Umbral", mascara)
             cv2.imshow("Contornos", contornos)
